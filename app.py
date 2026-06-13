@@ -1,0 +1,282 @@
+"""Rateify — tiny local widget that shows what Spotify is playing and lets you rate it.
+
+Reads Windows' media session (SMTC), so no Spotify API keys are needed.
+Run:  python app.py   → opens http://127.0.0.1:7700
+"""
+__version__ = "1.0.0"
+
+import asyncio
+import hashlib
+import json
+import socket
+import sys
+import threading
+import time
+import webbrowser
+from datetime import datetime
+from pathlib import Path
+
+from flask import Flask, jsonify, request, send_from_directory
+
+from winrt.windows.media.control import (
+    GlobalSystemMediaTransportControlsSessionManager as SessionManager,
+    GlobalSystemMediaTransportControlsSessionPlaybackStatus as PlaybackStatus,
+)
+from winrt.windows.storage.streams import Buffer, InputStreamOptions
+
+# frozen exe: bundled read-only assets live in _MEIPASS, data next to the exe
+FROZEN = getattr(sys, "frozen", False)
+BUNDLE = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
+ROOT = Path(sys.executable).parent if FROZEN else Path(__file__).parent
+DATA_DIR = ROOT / "data"
+COVERS_DIR = ROOT / "covers"
+DATA_DIR.mkdir(exist_ok=True)
+COVERS_DIR.mkdir(exist_ok=True)
+RATINGS_FILE = DATA_DIR / "ratings.json"
+
+PORT = 7700
+
+app = Flask(__name__, static_folder=str(BUNDLE / "static"), static_url_path="")
+
+# ---------------------------------------------------------------- ratings ----
+
+_ratings_lock = threading.Lock()
+
+
+def _load():
+    if RATINGS_FILE.exists():
+        return json.loads(RATINGS_FILE.read_text(encoding="utf-8"))
+    return {"albums": {}}
+
+
+def _save(data):
+    RATINGS_FILE.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
+
+def _album_key(artist, album):
+    return f"{artist}:::{album}"
+
+
+def _album_avg(album):
+    values = [t["value"] for t in album["tracks"].values()]
+    return round(sum(values) / len(values), 2) if values else None
+
+
+# ------------------------------------------------------------ SMTC worker ----
+
+_now_lock = threading.Lock()
+_now = {"active": False}
+_session = None  # latest SMTC session, used by /api/control
+_loop = None  # worker thread's asyncio loop
+
+
+def _cover_path(artist, album):
+    h = hashlib.md5(f"{artist}|{album}".encode("utf-8")).hexdigest()[:16]
+    return COVERS_DIR / f"{h}.png"
+
+
+async def _grab_cover(info, path):
+    if path.exists() or not info.thumbnail:
+        return
+    stream = await info.thumbnail.open_read_async()
+    size = stream.size
+    if not size:
+        return
+    buf = Buffer(size)
+    await stream.read_async(buf, size, InputStreamOptions.READ_AHEAD)
+    path.write_bytes(bytes(buf))
+
+
+async def _poll_forever():
+    global _session
+    mgr = await SessionManager.request_async()
+    while True:
+        try:
+            session = None
+            for s in mgr.get_sessions():
+                if "spotify" in (s.source_app_user_model_id or "").lower():
+                    session = s
+                    break
+            if session is None:
+                session = mgr.get_current_session()
+            _session = session
+
+            if session is None:
+                snap = {"active": False}
+            else:
+                info = await session.try_get_media_properties_async()
+                pb = session.get_playback_info()
+                tl = session.get_timeline_properties()
+                artist = info.artist or ""
+                album = info.album_title or ""
+                title = info.title or ""
+                cover = ""
+                if title:
+                    cpath = _cover_path(artist, album)
+                    try:
+                        await _grab_cover(info, cpath)
+                    except OSError:
+                        pass
+                    if cpath.exists():
+                        cover = f"/covers/{cpath.name}"
+                snap = {
+                    "active": bool(title),
+                    "title": title,
+                    "artist": artist,
+                    "album": album,
+                    "playing": pb.playback_status == PlaybackStatus.PLAYING,
+                    "position": tl.position.total_seconds() if tl.position else 0,
+                    "duration": tl.end_time.total_seconds() if tl.end_time else 0,
+                    "cover": cover,
+                    "ts": time.time(),
+                }
+            with _now_lock:
+                _now.clear()
+                _now.update(snap)
+        except Exception as exc:  # keep the poller alive no matter what
+            with _now_lock:
+                _now.clear()
+                _now.update({"active": False, "error": str(exc)})
+        await asyncio.sleep(1.5)
+
+
+def _worker():
+    global _loop
+    _loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(_loop)
+    _loop.run_until_complete(_poll_forever())
+
+
+# ------------------------------------------------------------------ routes ----
+
+
+@app.get("/")
+def index():
+    return send_from_directory(app.static_folder, "index.html")
+
+
+@app.get("/covers/<path:name>")
+def cover(name):
+    return send_from_directory(COVERS_DIR, name)
+
+
+@app.get("/api/now")
+def api_now():
+    with _now_lock:
+        snap = dict(_now)
+    if snap.get("active"):
+        with _ratings_lock:
+            data = _load()
+        album = data["albums"].get(_album_key(snap["artist"], snap["album"]))
+        saved = album["tracks"].get(snap["title"]) if album else None
+        snap["saved"] = saved
+    return jsonify(snap)
+
+
+_ACTIONS = {
+    "playpause": "try_toggle_play_pause_async",
+    "next": "try_skip_next_async",
+    "prev": "try_skip_previous_async",
+}
+
+
+@app.post("/api/control")
+def api_control():
+    action = (request.get_json(silent=True) or {}).get("action")
+    session = _session
+    if action not in _ACTIONS or session is None or _loop is None:
+        return jsonify(ok=False), 400
+    async def _do():
+        # winrt methods return an IAsyncOperation, not a coroutine — await it here
+        return await getattr(session, _ACTIONS[action])()
+
+    fut = asyncio.run_coroutine_threadsafe(_do(), _loop)
+    try:
+        ok = fut.result(timeout=5)
+    except Exception:
+        ok = False
+    return jsonify(ok=bool(ok))
+
+
+@app.post("/api/rate")
+def api_rate():
+    body = request.get_json(force=True)
+    artist, album, title = body["artist"], body["album"], body["title"]
+    key = _album_key(artist, album)
+    with _ratings_lock:
+        data = _load()
+        entry = data["albums"].setdefault(
+            key, {"artist": artist, "album": album, "cover": "", "tracks": {}}
+        )
+        cpath = _cover_path(artist, album)
+        if cpath.exists():
+            entry["cover"] = f"/covers/{cpath.name}"
+        entry["tracks"][title] = {
+            "value": round(float(body["value"]), 2),
+            "label": body["label"],
+            "note": body.get("note", "").strip(),
+            "date": datetime.now().isoformat(timespec="seconds"),
+        }
+        _save(data)
+        return jsonify(ok=True, albumAvg=_album_avg(entry))
+
+
+@app.delete("/api/rate")
+def api_unrate():
+    body = request.get_json(force=True)
+    key = _album_key(body["artist"], body["album"])
+    with _ratings_lock:
+        data = _load()
+        entry = data["albums"].get(key)
+        if entry and body["title"] in entry["tracks"]:
+            del entry["tracks"][body["title"]]
+            if not entry["tracks"]:
+                del data["albums"][key]
+            _save(data)
+    return jsonify(ok=True)
+
+
+@app.get("/api/library")
+def api_library():
+    with _ratings_lock:
+        data = _load()
+    albums = []
+    for entry in data["albums"].values():
+        tracks = [
+            {"title": t, **info}
+            for t, info in sorted(
+                entry["tracks"].items(), key=lambda kv: kv[1]["date"], reverse=True
+            )
+        ]
+        albums.append(
+            {
+                "artist": entry["artist"],
+                "album": entry["album"],
+                "cover": entry["cover"],
+                "avg": _album_avg(entry),
+                "count": len(tracks),
+                "latest": max(t["date"] for t in tracks),
+                "tracks": tracks,
+            }
+        )
+    albums.sort(key=lambda a: a["latest"], reverse=True)
+    return jsonify(albums=albums)
+
+
+def _already_running():
+    with socket.socket() as s:
+        s.settimeout(0.3)
+        return s.connect_ex(("127.0.0.1", PORT)) == 0
+
+
+if __name__ == "__main__":
+    if _already_running():
+        # another Rateify has the port — just bring up its page
+        webbrowser.open(f"http://127.0.0.1:{PORT}")
+        sys.exit(0)
+    threading.Thread(target=_worker, daemon=True).start()
+    threading.Timer(1.0, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}")).start()
+    print(f"Rateify spinning at http://127.0.0.1:{PORT}")
+    app.run(host="127.0.0.1", port=PORT, debug=False)

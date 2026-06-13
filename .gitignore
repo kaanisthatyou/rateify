@@ -1,0 +1,11 @@
+# build artifacts
+__pycache__/
+build/
+dist/
+release/
+Rateify.exe
+*.zip
+
+# personal library — your ratings stay yours
+data/
+covers/
