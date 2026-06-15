@@ -1,0 +1,497 @@
+/* ============ rateify — bedroom-label zine ============ */
+
+@font-face {
+  font-family: "Special Elite";
+  src: url("fonts/SpecialElite.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Caveat";
+  src: url("fonts/Caveat.ttf") format("truetype");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f0e9d8;
+  --card: #fbf6ea;
+  --ink: #241f17;
+  --soft: #857c66;
+  --stamp: #cf4520;
+  --teal: #2f6f66;
+  --line: #d8cdb4;
+  --wobble: 14px 18px 12px 20px / 19px 12px 21px 13px;
+  --shadow: 4px 4px 0 var(--ink);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Special Elite", "Courier New", monospace;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 14px 40px;
+}
+
+/* paper grain over everything */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  opacity: .07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------ header */
+header { text-align: center; margin-bottom: 18px; }
+
+.wordmark {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: 58px;
+  line-height: 1;
+  transform: rotate(-2deg);
+  text-shadow: 2px 2px 0 var(--stamp);
+  animation: drop-in .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+
+.tagline {
+  color: var(--soft);
+  font-size: 12px;
+  letter-spacing: .14em;
+  margin-top: 2px;
+  animation: drop-in .5s .08s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+
+.tabs { margin-top: 16px; display: flex; gap: 10px; justify-content: center; }
+
+.tab {
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: .08em;
+  background: none;
+  border: none;
+  color: var(--soft);
+  cursor: pointer;
+  padding: 4px 6px;
+  position: relative;
+}
+.tab.active { color: var(--ink); }
+.tab.active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 5px;
+  background: var(--stamp);
+  border-radius: 60% 40% 55% 45% / 80% 60% 90% 50%;   /* marker underline */
+  transform: rotate(-1deg);
+}
+.tab:hover { color: var(--ink); }
+
+/* ------------------------------------------------ cards */
+main { width: 100%; max-width: 430px; }
+
+.card {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble);
+  box-shadow: var(--shadow);
+  padding: 22px 20px;
+  animation: drop-in .45s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+
+/* ------------------------------------------------ cover + vinyl */
+.cover-zone {
+  position: relative;
+  width: 232px;
+  margin: 6px auto 18px;
+}
+
+.vinyl {
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 200px; height: 200px;
+  transition: transform .8s cubic-bezier(.3, 1.2, .4, 1);
+  z-index: 0;
+}
+.vinyl.out { transform: translateX(44%) rotate(4deg); }
+
+.vinyl-disc {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      var(--stamp) 0 18%,
+      #171310 18.5% 100%);
+  box-shadow: inset 0 0 0 2px #000, 2px 3px 0 rgba(36,31,23,.55);
+  position: relative;
+}
+.vinyl-disc::before {         /* grooves */
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle,
+    transparent 0 5px, rgba(255,255,255,.05) 5px 6px);
+}
+.vinyl-disc::after {          /* spindle hole */
+  content: "";
+  position: absolute; top: 50%; left: 50%;
+  width: 9px; height: 9px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--card);
+}
+.vinyl.out .vinyl-disc { animation: spin 3.2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.cover-frame {
+  position: relative;
+  z-index: 1;
+  transform: rotate(-1.6deg);
+}
+.cover {
+  display: block;
+  width: 216px; height: 216px;
+  object-fit: cover;
+  border: 2px solid var(--ink);
+  background: var(--line);
+  box-shadow: var(--shadow);
+}
+
+/* washi tape */
+.tape {
+  position: absolute;
+  width: 74px; height: 22px;
+  background: rgba(210, 180, 90, .65);
+  border-left: 1px dashed rgba(36,31,23,.25);
+  border-right: 1px dashed rgba(36,31,23,.25);
+  z-index: 2;
+}
+.tape-tl { top: -11px; left: 22px; transform: rotate(-5deg); }
+
+/* rubber stamp */
+.stamp {
+  position: absolute;
+  right: -14px; bottom: 10px;
+  z-index: 3;
+  color: var(--stamp);
+  border: 3px double var(--stamp);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 20px;
+  letter-spacing: .18em;
+  transform: rotate(-14deg);
+  background: rgba(251, 246, 234, .75);
+  animation: stamp-slam .35s cubic-bezier(.6, 0, .8, .4) both;
+}
+@keyframes stamp-slam {
+  0%   { transform: rotate(-14deg) scale(2.6); opacity: 0; }
+  70%  { transform: rotate(-14deg) scale(.94); opacity: 1; }
+  100% { transform: rotate(-14deg) scale(1); }
+}
+
+/* ------------------------------------------------ meta / progress */
+.track-meta { text-align: center; margin-bottom: 14px; }
+.track-meta h2 { font-size: 21px; line-height: 1.25; }
+.artist { color: var(--stamp); font-size: 14px; margin-top: 3px; }
+.album  { color: var(--soft); font-size: 12px; margin-top: 2px; font-style: italic; }
+
+.progress-zone {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+}
+.ptime { font-size: 11px; color: var(--soft); min-width: 34px; }
+.ptime:last-child { text-align: right; }
+
+.pbar {
+  flex: 1;
+  height: 10px;
+  border: 2px solid var(--ink);
+  border-radius: 6px 9px 7px 10px / 9px 6px 10px 7px;
+  background: var(--card);
+  overflow: hidden;
+}
+.pfill {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(-55deg,
+    var(--stamp) 0 7px, #e06a44 7px 14px);
+  transition: width .4s linear;
+}
+.playing .pfill { animation: crawl 1.2s linear infinite; }
+@keyframes crawl { to { background-position: 20px 0; } }
+
+/* ------------------------------------------------ media buttons */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.ctl {
+  width: 48px; height: 48px;
+  border: 2px solid var(--ink);
+  border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
+  background: var(--card);
+  box-shadow: 3px 3px 0 var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform .08s, box-shadow .08s;
+}
+.ctl-big { width: 62px; height: 62px; background: var(--stamp); }
+.ctl svg { width: 20px; height: 20px; fill: var(--ink); }
+.ctl-big svg { width: 26px; height: 26px; fill: var(--card); }
+.ctl:hover { transform: rotate(-3deg); }
+.ctl:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
+
+/* torn-paper divider */
+.tear {
+  height: 0;
+  border-top: 2px dashed var(--ink);
+  opacity: .35;
+  margin: 18px -4px;
+}
+
+/* ------------------------------------------------ rating */
+.rating-preview {
+  font-family: "Caveat", cursive;
+  font-size: 34px;
+  font-weight: 700;
+  text-align: center;
+  min-height: 44px;
+  transform: rotate(-1deg);
+}
+.r-value { color: var(--soft); font-size: 20px; margin-left: 10px; }
+
+.pills {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  justify-content: center;
+  gap: 8px 10px;
+  margin: 10px 0 12px;
+}
+.pill {
+  font: inherit;
+  font-size: 15px;
+  width: 37px; height: 37px;
+  border: 2px solid var(--ink);
+  border-radius: 48% 52% 55% 45% / 55% 45% 50% 50%;
+  background: var(--card);
+  cursor: pointer;
+  transition: transform .1s, background .1s, color .1s;
+}
+.pill:nth-child(odd)  { transform: rotate(2deg); }
+.pill:nth-child(even) { transform: rotate(-2deg); }
+.pill:hover { transform: rotate(0deg) scale(1.12); }
+.pill.on {
+  background: var(--ink);
+  color: var(--card);
+  transform: scale(1.14) rotate(-3deg);
+  box-shadow: 2px 2px 0 var(--stamp);
+}
+
+.mods {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.mod {
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .1em;
+  padding: 5px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 20px 8px 18px 9px / 9px 18px 8px 20px;
+  background: var(--card);
+  cursor: pointer;
+  transition: background .1s, color .1s, transform .1s;
+}
+.mod.active { background: var(--teal); color: var(--card); transform: rotate(-2deg); }
+.mod:disabled { opacity: .3; cursor: not-allowed; }
+
+.note {
+  width: 100%;
+  font-family: "Caveat", cursive;
+  font-size: 20px;
+  line-height: 28px;
+  color: var(--ink);
+  background:
+    repeating-linear-gradient(var(--card) 0 27px, var(--line) 27px 28px);
+  border: 2px solid var(--ink);
+  border-radius: 10px 14px 9px 15px / 14px 9px 15px 10px;
+  padding: 4px 12px 8px;
+  resize: vertical;
+  outline: none;
+}
+.note:focus { box-shadow: 3px 3px 0 var(--teal); }
+
+.save-btn {
+  display: block;
+  margin: 16px auto 2px;
+  font: inherit;
+  font-size: 16px;
+  letter-spacing: .12em;
+  padding: 11px 30px;
+  color: var(--card);
+  background: var(--stamp);
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .08s, box-shadow .08s;
+}
+.save-btn:hover { transform: rotate(-1.5deg); }
+.save-btn:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--ink); }
+.save-btn.saved { background: var(--teal); }
+.save-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* shake when trying to save without a number */
+.save-btn.nope { animation: nope .3s; }
+@keyframes nope {
+  25% { transform: translateX(-6px) rotate(-2deg); }
+  75% { transform: translateX(6px) rotate(2deg); }
+}
+
+/* ------------------------------------------------ empty states */
+.empty-card { text-align: center; padding: 44px 20px; border-style: dashed; box-shadow: none; }
+.empty-big { font-family: "Caveat", cursive; font-size: 36px; font-weight: 700; transform: rotate(-2deg); }
+.empty-small { color: var(--soft); font-size: 13px; margin-top: 8px; }
+
+/* ------------------------------------------------ shelf */
+.shelf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 16px;
+}
+
+.album-card {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble);
+  box-shadow: var(--shadow);
+  padding: 14px 12px 12px;
+  cursor: pointer;
+  position: relative;
+  animation: drop-in .4s cubic-bezier(.2, 1.4, .4, 1) both;
+  transition: transform .12s;
+}
+.shelf-grid .album-card:nth-child(odd)  { transform: rotate(.8deg); }
+.shelf-grid .album-card:nth-child(even) { transform: rotate(-.8deg); }
+.album-card:hover { transform: rotate(0) translateY(-3px); }
+.album-card:nth-child(1) { animation-delay: 0s; }
+.album-card:nth-child(2) { animation-delay: .05s; }
+.album-card:nth-child(3) { animation-delay: .1s; }
+.album-card:nth-child(4) { animation-delay: .15s; }
+.album-card:nth-child(5) { animation-delay: .2s; }
+.album-card:nth-child(n+6) { animation-delay: .25s; }
+
+.album-cover-wrap { position: relative; }
+.album-cover {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  border: 2px solid var(--ink);
+  background: var(--line);
+}
+.album-cover.placeholder {
+  display: grid;
+  place-items: center;
+  font-size: 44px;
+  color: var(--soft);
+}
+
+.avg-badge {
+  position: absolute;
+  top: -12px; right: -10px;
+  min-width: 44px; height: 44px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  background: var(--stamp);
+  color: var(--card);
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: 21px;
+  border: 2px solid var(--ink);
+  border-radius: 50% 46% 54% 50% / 48% 54% 46% 52%;
+  transform: rotate(10deg);
+  box-shadow: 2px 2px 0 var(--ink);
+  z-index: 2;
+}
+
+.album-name { font-size: 13px; margin-top: 9px; line-height: 1.3; }
+.album-artist { font-size: 11px; color: var(--soft); margin-top: 2px; }
+.album-count { font-family: "Caveat", cursive; font-size: 15px; color: var(--teal); margin-top: 3px; }
+
+/* expanded track list */
+.album-tracks {
+  grid-column: 1 / -1;
+  background: var(--card);
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble);
+  box-shadow: var(--shadow);
+  padding: 16px 18px;
+  animation: drop-in .3s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.album-tracks h3 { font-size: 16px; margin-bottom: 2px; }
+.album-tracks .sub { font-size: 11px; color: var(--soft); margin-bottom: 12px; }
+
+.trk {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--line);
+}
+.trk-title { flex: 1; font-size: 14px; }
+.trk-label {
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--stamp);
+  white-space: nowrap;
+}
+.trk-del {
+  font: inherit;
+  border: none;
+  background: none;
+  color: var(--soft);
+  cursor: pointer;
+  font-size: 15px;
+}
+.trk-del:hover { color: var(--stamp); }
+.trk-note {
+  font-family: "Caveat", cursive;
+  font-size: 17px;
+  color: var(--teal);
+  margin: -4px 0 4px 2px;
+}
+.trk-date { font-size: 10px; color: var(--soft); }
+
+/* ------------------------------------------------ misc */
+footer {
+  margin-top: 34px;
+  font-size: 11px;
+  color: var(--soft);
+  letter-spacing: .12em;
+}
+
+@keyframes drop-in {
+  from { opacity: 0; transform: translateY(14px) rotate(-1deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

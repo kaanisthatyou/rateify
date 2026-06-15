@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rateify ♪</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♪</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1 class="wordmark">rateify</h1>
+  <p class="tagline">judge every song. keep receipts.</p>
+  <nav class="tabs">
+    <button class="tab active" data-view="now">now spinning</button>
+    <button class="tab" data-view="shelf">the shelf</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ================= NOW ================= -->
+  <section id="view-now">
+
+    <div class="card now-card" id="now-card" hidden>
+      <div class="cover-zone">
+        <div class="vinyl" id="vinyl"><div class="vinyl-disc"></div></div>
+        <div class="cover-frame">
+          <span class="tape tape-tl"></span>
+          <img id="cover" class="cover" alt="album cover">
+          <div class="stamp" id="stamp" hidden>RATED</div>
+        </div>
+      </div>
+
+      <div class="track-meta">
+        <h2 id="t-title">—</h2>
+        <p id="t-artist" class="artist">—</p>
+        <p id="t-album" class="album">—</p>
+      </div>
+
+      <div class="progress-zone">
+        <span id="p-cur" class="ptime">0:00</span>
+        <div class="pbar"><div id="p-fill" class="pfill"></div></div>
+        <span id="p-dur" class="ptime">0:00</span>
+      </div>
+
+      <div class="controls">
+        <button class="ctl" data-act="prev" title="previous" aria-label="previous">
+          <svg viewBox="0 0 24 24"><path d="M6 5h3v14H6zM20 5v14L9.5 12z"/></svg>
+        </button>
+        <button class="ctl ctl-big" data-act="playpause" title="play / pause" aria-label="play/pause">
+          <svg id="icon-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
+          <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+        </button>
+        <button class="ctl" data-act="next" title="next" aria-label="next">
+          <svg viewBox="0 0 24 24"><path d="M15 5h3v14h-3zM4 5v14l10.5-7z"/></svg>
+        </button>
+      </div>
+
+      <div class="tear"></div>
+
+      <div class="rating-zone">
+        <p class="rating-preview"><span id="r-label">pick a number…</span><span id="r-value" class="r-value"></span></p>
+
+        <div class="pills" id="pills"></div>
+
+        <div class="mods" id="mods">
+          <button class="mod" data-mod="light">light</button>
+          <button class="mod active" data-mod="just">just</button>
+          <button class="mod" data-mod="strong">strong</button>
+        </div>
+
+        <textarea id="note" class="note" rows="3" placeholder="scribble a note… (why this number?)"></textarea>
+
+        <button id="save" class="save-btn">✦ stamp it</button>
+      </div>
+    </div>
+
+    <div class="card empty-card" id="now-empty">
+      <p class="empty-big">nothing spinning</p>
+      <p class="empty-small">put a record on in spotify &amp; it shows up here ♪</p>
+    </div>
+
+  </section>
+
+  <!-- ================ SHELF ================ -->
+  <section id="view-shelf" hidden>
+    <div id="shelf-grid" class="shelf-grid"></div>
+    <div class="card empty-card" id="shelf-empty" hidden>
+      <p class="empty-big">bare shelves</p>
+      <p class="empty-small">no verdicts yet — go judge something</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>hand-built · open-ish source · yours</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
