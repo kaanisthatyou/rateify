@@ -1,4 +1,5 @@
 flask>=3.0
+pywebview>=6.0
 winrt-runtime>=3.0
 winrt-Windows.Media.Control>=3.0
 winrt-Windows.Storage.Streams>=3.0

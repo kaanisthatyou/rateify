@@ -9,9 +9,16 @@
 </head>
 <body>
 
+<div class="win-ctls">
+  <button id="win-min" title="minimize" aria-label="minimize">–</button>
+  <button id="win-close" title="close" aria-label="close">✕</button>
+</div>
+
 <header>
-  <h1 class="wordmark">rateify</h1>
-  <p class="tagline">judge every song. keep receipts.</p>
+  <div class="pywebview-drag-region grab">
+    <h1 class="wordmark">rateify</h1>
+    <p class="tagline">judge every song. keep receipts.</p>
+  </div>
   <nav class="tabs">
     <button class="tab active" data-view="now">now spinning</button>
     <button class="tab" data-view="shelf">the shelf</button>

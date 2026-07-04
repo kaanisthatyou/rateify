@@ -318,6 +318,14 @@ function toggleTracks(card, a) {
   openPanel = panel;
 }
 
+// ------------------------------------------------------- widget window ----
+// pywebview announces itself after load; only then show the ✕ / — buttons
+window.addEventListener("pywebviewready", () => {
+  document.body.classList.add("webview");
+  $("win-close").addEventListener("click", () => window.pywebview.api.close());
+  $("win-min").addEventListener("click", () => window.pywebview.api.minimize());
+});
+
 // ----------------------------------------------------------------- boot ----
 renderRating();
 pollNow();

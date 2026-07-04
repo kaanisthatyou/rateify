@@ -3,7 +3,7 @@
 Reads Windows' media session (SMTC), so no Spotify API keys are needed.
 Run:  python app.py   → opens http://127.0.0.1:7700
 """
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 import asyncio
 import hashlib
@@ -280,12 +280,47 @@ def _already_running():
         return s.connect_ex(("127.0.0.1", PORT)) == 0
 
 
+def _run_flask():
+    app.run(host="127.0.0.1", port=PORT, debug=False)
+
+
+def _run_widget():
+    """Frameless always-on-top widget window; the page's header is the drag
+    handle and its ✕ / — buttons call back in through window.expose."""
+    import webview
+
+    threading.Thread(target=_run_flask, daemon=True).start()
+    window = webview.create_window(
+        "rateify",
+        f"http://127.0.0.1:{PORT}",
+        width=478,
+        height=1000,
+        frameless=True,
+        on_top=True,
+        resizable=True,
+        background_color="#f0e9d8",
+    )
+
+    def close():
+        window.destroy()
+
+    def minimize():
+        window.minimize()
+
+    window.expose(close, minimize)
+    webview.start()  # blocks until the window is closed
+
+
 if __name__ == "__main__":
     if _already_running():
         # another Rateify has the port — just bring up its page
         webbrowser.open(f"http://127.0.0.1:{PORT}")
         sys.exit(0)
     threading.Thread(target=_worker, daemon=True).start()
-    threading.Timer(1.0, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}")).start()
-    print(f"Rateify spinning at http://127.0.0.1:{PORT}")
-    app.run(host="127.0.0.1", port=PORT, debug=False)
+    try:
+        _run_widget()
+    except Exception:
+        # no WebView2 runtime? fall back to the browser like the old days
+        threading.Timer(1.0, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}")).start()
+        print(f"Rateify spinning at http://127.0.0.1:{PORT}")
+        _run_flask()

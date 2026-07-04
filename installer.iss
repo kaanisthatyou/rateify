@@ -1,6 +1,6 @@
 ; Inno Setup script for Rateify — compile with ISCC.exe installer.iss
 #define MyAppName "Rateify"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppExeName "Rateify.exe"
 
 [Setup]

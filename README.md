@@ -12,6 +12,8 @@ verdict on every song — typewriter, handwriting, washi tape and all.
 
 ## Why it's neat
 
+- **A real desktop widget** — frameless, always-on-top native window
+  (WebView2). Drag it around by the wordmark, park it in a corner, ✕ when done.
 - **No Spotify API keys, no OAuth, no account.** It reads the Windows media
   session (SMTC), so it just works with the Spotify desktop app — or anything
   else that plays media.
@@ -34,8 +36,9 @@ Grab the latest [release](../../releases):
   start-menu (and optionally desktop) shortcut.
 - **`Rateify-x.y.z-portable.zip`** — unzip anywhere and run `Rateify.exe`.
 
-Launching it again while it's running just refocuses the page. Your library
-lives in `data/` next to the exe and survives updates and uninstalls.
+Your library lives in `data/` next to the exe and survives updates and
+uninstalls. If WebView2 is somehow missing, it falls back to opening the UI
+in your browser.
 
 ## Run from source
 
