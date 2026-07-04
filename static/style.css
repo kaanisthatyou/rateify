@@ -27,6 +27,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
+  overflow-x: hidden;
   font-family: "Special Elite", "Courier New", monospace;
   background: var(--paper);
   color: var(--ink);
@@ -34,7 +35,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 22px 14px 40px;
+  padding: 10px 10px 14px;
 }
 
 /* paper grain over everything */
@@ -88,37 +89,53 @@ body.webview .grab:active { cursor: grabbing; }
 }
 
 /* ------------------------------------------------ header */
-header { text-align: center; margin-bottom: 18px; }
+header {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+body.webview header { padding-right: 62px; } /* room for the ✕ / — buttons */
+body.webview { min-height: 0; } /* body must hug content so fitWindow can measure it */
 
 .wordmark {
   font-family: "Caveat", cursive;
   font-weight: 700;
-  font-size: 58px;
+  font-size: 30px;
   line-height: 1;
   transform: rotate(-2deg);
-  text-shadow: 2px 2px 0 var(--stamp);
+  text-shadow: 1.5px 1.5px 0 var(--stamp);
   animation: drop-in .5s cubic-bezier(.2, 1.4, .4, 1) both;
 }
 
-.tagline {
+/* tiny now-playing readout, only while the widget is tucked away */
+.mini-now {
+  display: none;
+  flex: 1;
+  font-family: "Caveat", cursive;
+  font-size: 16px;
   color: var(--soft);
-  font-size: 12px;
-  letter-spacing: .14em;
-  margin-top: 2px;
-  animation: drop-in .5s .08s cubic-bezier(.2, 1.4, .4, 1) both;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
+body.collapsed .mini-now { display: block; }
+body.collapsed main { display: none; }
 
-.tabs { margin-top: 16px; display: flex; gap: 10px; justify-content: center; }
+.tabs { display: flex; gap: 8px; margin-left: auto; }
 
 .tab {
   font: inherit;
-  font-size: 13px;
+  font-size: 12.5px;
   letter-spacing: .08em;
   background: none;
   border: none;
   color: var(--soft);
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 4px 5px;
   position: relative;
 }
 .tab.active { color: var(--ink); }
@@ -134,28 +151,28 @@ header { text-align: center; margin-bottom: 18px; }
 .tab:hover { color: var(--ink); }
 
 /* ------------------------------------------------ cards */
-main { width: 100%; max-width: 430px; }
+main { width: 100%; max-width: 400px; }
 
 .card {
   background: var(--card);
   border: 2px solid var(--ink);
   border-radius: var(--wobble);
   box-shadow: var(--shadow);
-  padding: 22px 20px;
+  padding: 13px 14px;
   animation: drop-in .45s cubic-bezier(.2, 1.4, .4, 1) both;
 }
 
 /* ------------------------------------------------ cover + vinyl */
 .cover-zone {
   position: relative;
-  width: 232px;
-  margin: 6px auto 18px;
+  width: 172px;
+  margin: 4px auto 10px;
 }
 
 .vinyl {
   position: absolute;
-  top: 8px; left: 8px;
-  width: 200px; height: 200px;
+  top: 7px; left: 7px;
+  width: 146px; height: 146px;
   transition: transform .8s cubic-bezier(.3, 1.2, .4, 1);
   z-index: 0;
 }
@@ -196,7 +213,7 @@ main { width: 100%; max-width: 430px; }
 }
 .cover {
   display: block;
-  width: 216px; height: 216px;
+  width: 160px; height: 160px;
   object-fit: cover;
   border: 2px solid var(--ink);
   background: var(--line);
@@ -206,24 +223,24 @@ main { width: 100%; max-width: 430px; }
 /* washi tape */
 .tape {
   position: absolute;
-  width: 74px; height: 22px;
+  width: 56px; height: 16px;
   background: rgba(210, 180, 90, .65);
   border-left: 1px dashed rgba(36,31,23,.25);
   border-right: 1px dashed rgba(36,31,23,.25);
   z-index: 2;
 }
-.tape-tl { top: -11px; left: 22px; transform: rotate(-5deg); }
+.tape-tl { top: -8px; left: 18px; transform: rotate(-5deg); }
 
 /* rubber stamp */
 .stamp {
   position: absolute;
-  right: -14px; bottom: 10px;
+  right: -12px; bottom: 6px;
   z-index: 3;
   color: var(--stamp);
   border: 3px double var(--stamp);
   border-radius: 6px;
-  padding: 3px 10px;
-  font-size: 20px;
+  padding: 2px 8px;
+  font-size: 14px;
   letter-spacing: .18em;
   transform: rotate(-14deg);
   background: rgba(251, 246, 234, .75);
@@ -236,23 +253,23 @@ main { width: 100%; max-width: 430px; }
 }
 
 /* ------------------------------------------------ meta / progress */
-.track-meta { text-align: center; margin-bottom: 14px; }
-.track-meta h2 { font-size: 21px; line-height: 1.25; }
-.artist { color: var(--stamp); font-size: 14px; margin-top: 3px; }
-.album  { color: var(--soft); font-size: 12px; margin-top: 2px; font-style: italic; }
+.track-meta { text-align: center; margin-bottom: 8px; }
+.track-meta h2 { font-size: 15.5px; line-height: 1.25; }
+.artist { color: var(--stamp); font-size: 12px; margin-top: 2px; }
+.album  { color: var(--soft); font-size: 10.5px; margin-top: 1px; font-style: italic; }
 
 .progress-zone {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
-.ptime { font-size: 11px; color: var(--soft); min-width: 34px; }
+.ptime { font-size: 10px; color: var(--soft); min-width: 30px; }
 .ptime:last-child { text-align: right; }
 
 .pbar {
   flex: 1;
-  height: 10px;
+  height: 8px;
   border: 2px solid var(--ink);
   border-radius: 6px 9px 7px 10px / 9px 6px 10px 7px;
   background: var(--card);
@@ -273,11 +290,11 @@ main { width: 100%; max-width: 430px; }
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 4px;
+  gap: 12px;
+  margin-bottom: 0;
 }
 .ctl {
-  width: 48px; height: 48px;
+  width: 40px; height: 40px;
   border: 2px solid var(--ink);
   border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
   background: var(--card);
@@ -287,9 +304,9 @@ main { width: 100%; max-width: 430px; }
   place-items: center;
   transition: transform .08s, box-shadow .08s;
 }
-.ctl-big { width: 62px; height: 62px; background: var(--stamp); }
-.ctl svg { width: 20px; height: 20px; fill: var(--ink); }
-.ctl-big svg { width: 26px; height: 26px; fill: var(--card); }
+.ctl-big { width: 52px; height: 52px; background: var(--stamp); }
+.ctl svg { width: 16px; height: 16px; fill: var(--ink); }
+.ctl-big svg { width: 22px; height: 22px; fill: var(--card); }
 .ctl:hover { transform: rotate(-3deg); }
 .ctl:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
 
@@ -298,31 +315,51 @@ main { width: 100%; max-width: 430px; }
   height: 0;
   border-top: 2px dashed var(--ink);
   opacity: .35;
-  margin: 18px -4px;
+  margin: 12px -2px;
 }
 
+/* retractable rating drawer */
+.drawer-toggle {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-size: 12.5px;
+  letter-spacing: .08em;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: none;
+  border: 2px dashed var(--ink);
+  border-radius: var(--wobble);
+  opacity: .75;
+  cursor: pointer;
+  transition: opacity .1s, transform .08s;
+}
+.drawer-toggle:hover { opacity: 1; transform: rotate(-.6deg); }
+
 /* ------------------------------------------------ rating */
+.rating-zone { margin-top: 12px; animation: drop-in .25s cubic-bezier(.2, 1.4, .4, 1) both; }
+
 .rating-preview {
   font-family: "Caveat", cursive;
-  font-size: 34px;
+  font-size: 24px;
   font-weight: 700;
   text-align: center;
-  min-height: 44px;
+  min-height: 30px;
   transform: rotate(-1deg);
 }
-.r-value { color: var(--soft); font-size: 20px; margin-left: 10px; }
+.r-value { color: var(--soft); font-size: 16px; margin-left: 8px; }
 
 .pills {
   display: grid;
   grid-template-columns: repeat(5, auto);
   justify-content: center;
-  gap: 8px 10px;
-  margin: 10px 0 12px;
+  gap: 6px 8px;
+  margin: 7px 0 9px;
 }
 .pill {
   font: inherit;
-  font-size: 15px;
-  width: 37px; height: 37px;
+  font-size: 13px;
+  width: 31px; height: 31px;
   border: 2px solid var(--ink);
   border-radius: 48% 52% 55% 45% / 55% 45% 50% 50%;
   background: var(--card);
@@ -342,14 +379,14 @@ main { width: 100%; max-width: 430px; }
 .mods {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 7px;
+  margin-bottom: 10px;
 }
 .mod {
   font: inherit;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: .1em;
-  padding: 5px 14px;
+  padding: 4px 11px;
   border: 2px solid var(--ink);
   border-radius: 20px 8px 18px 9px / 9px 18px 8px 20px;
   background: var(--card);
@@ -362,14 +399,14 @@ main { width: 100%; max-width: 430px; }
 .note {
   width: 100%;
   font-family: "Caveat", cursive;
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 17px;
+  line-height: 24px;
   color: var(--ink);
   background:
-    repeating-linear-gradient(var(--card) 0 27px, var(--line) 27px 28px);
+    repeating-linear-gradient(var(--card) 0 23px, var(--line) 23px 24px);
   border: 2px solid var(--ink);
   border-radius: 10px 14px 9px 15px / 14px 9px 15px 10px;
-  padding: 4px 12px 8px;
+  padding: 3px 10px 6px;
   resize: vertical;
   outline: none;
 }
@@ -377,11 +414,11 @@ main { width: 100%; max-width: 430px; }
 
 .save-btn {
   display: block;
-  margin: 16px auto 2px;
+  margin: 11px auto 2px;
   font: inherit;
-  font-size: 16px;
+  font-size: 13.5px;
   letter-spacing: .12em;
-  padding: 11px 30px;
+  padding: 8px 22px;
   color: var(--card);
   background: var(--stamp);
   border: 2px solid var(--ink);
@@ -403,15 +440,15 @@ main { width: 100%; max-width: 430px; }
 }
 
 /* ------------------------------------------------ empty states */
-.empty-card { text-align: center; padding: 44px 20px; border-style: dashed; box-shadow: none; }
-.empty-big { font-family: "Caveat", cursive; font-size: 36px; font-weight: 700; transform: rotate(-2deg); }
-.empty-small { color: var(--soft); font-size: 13px; margin-top: 8px; }
+.empty-card { text-align: center; padding: 26px 16px; border-style: dashed; box-shadow: none; }
+.empty-big { font-family: "Caveat", cursive; font-size: 27px; font-weight: 700; transform: rotate(-2deg); }
+.empty-small { color: var(--soft); font-size: 11.5px; margin-top: 6px; }
 
 /* ------------------------------------------------ shelf */
 .shelf-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 16px;
+  gap: 14px 12px;
 }
 
 .album-card {
@@ -419,7 +456,7 @@ main { width: 100%; max-width: 430px; }
   border: 2px solid var(--ink);
   border-radius: var(--wobble);
   box-shadow: var(--shadow);
-  padding: 14px 12px 12px;
+  padding: 11px 10px 9px;
   cursor: pointer;
   position: relative;
   animation: drop-in .4s cubic-bezier(.2, 1.4, .4, 1) both;
@@ -453,16 +490,16 @@ main { width: 100%; max-width: 430px; }
 
 .avg-badge {
   position: absolute;
-  top: -12px; right: -10px;
-  min-width: 44px; height: 44px;
-  padding: 0 5px;
+  top: -10px; right: -8px;
+  min-width: 37px; height: 37px;
+  padding: 0 4px;
   display: grid;
   place-items: center;
   background: var(--stamp);
   color: var(--card);
   font-family: "Caveat", cursive;
   font-weight: 700;
-  font-size: 21px;
+  font-size: 17px;
   border: 2px solid var(--ink);
   border-radius: 50% 46% 54% 50% / 48% 54% 46% 52%;
   transform: rotate(10deg);
@@ -470,9 +507,9 @@ main { width: 100%; max-width: 430px; }
   z-index: 2;
 }
 
-.album-name { font-size: 13px; margin-top: 9px; line-height: 1.3; }
-.album-artist { font-size: 11px; color: var(--soft); margin-top: 2px; }
-.album-count { font-family: "Caveat", cursive; font-size: 15px; color: var(--teal); margin-top: 3px; }
+.album-name { font-size: 11.5px; margin-top: 7px; line-height: 1.3; }
+.album-artist { font-size: 10px; color: var(--soft); margin-top: 2px; }
+.album-count { font-family: "Caveat", cursive; font-size: 13px; color: var(--teal); margin-top: 2px; }
 
 /* expanded track list */
 .album-tracks {
@@ -520,13 +557,6 @@ main { width: 100%; max-width: 430px; }
 .trk-date { font-size: 10px; color: var(--soft); }
 
 /* ------------------------------------------------ misc */
-footer {
-  margin-top: 34px;
-  font-size: 11px;
-  color: var(--soft);
-  letter-spacing: .12em;
-}
-
 @keyframes drop-in {
   from { opacity: 0; transform: translateY(14px) rotate(-1deg); }
 }

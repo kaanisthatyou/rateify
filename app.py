@@ -3,7 +3,7 @@
 Reads Windows' media session (SMTC), so no Spotify API keys are needed.
 Run:  python app.py   → opens http://127.0.0.1:7700
 """
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 import asyncio
 import hashlib
@@ -293,8 +293,8 @@ def _run_widget():
     window = webview.create_window(
         "rateify",
         f"http://127.0.0.1:{PORT}",
-        width=478,
-        height=1000,
+        width=420,
+        height=560,
         frameless=True,
         on_top=True,
         resizable=True,
@@ -307,7 +307,11 @@ def _run_widget():
     def minimize():
         window.minimize()
 
-    window.expose(close, minimize)
+    def resize(width, height):
+        # the page asks to be fitted to its content (drawer open/closed, etc.)
+        window.resize(int(width), int(height))
+
+    window.expose(close, minimize, resize)
     webview.start()  # blocks until the window is closed
 
 

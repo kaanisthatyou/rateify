@@ -21,17 +21,56 @@ const valueOf = (n, mod) =>
 // label for an already-stored numeric value (used on the shelf)
 const prettyAvg = (v) => (v == null ? "–" : (Math.round(v * 10) / 10).toFixed(1));
 
-// ---------------------------------------------------------------- tabs ----
+// ------------------------------------------------- tabs + window fitting ----
+let collapsed = false;
+
+// ask the native window to hug the content (no-op in a plain browser)
+function fitWindow() {
+  if (!window.pywebview) return;
+  const h = collapsed
+    ? 92
+    : Math.min(Math.max(document.body.scrollHeight + 6, 280), 920);
+  window.pywebview.api.resize(420, h);
+}
+
+function setCollapsed(c) {
+  collapsed = c;
+  document.body.classList.toggle("collapsed", c);
+  fitWindow();
+}
+
 document.querySelectorAll(".tab").forEach((tab) =>
   tab.addEventListener("click", () => {
+    if (tab.classList.contains("active")) {
+      setCollapsed(!collapsed); // tap the open tab again to tuck the widget away
+      return;
+    }
+    setCollapsed(false);
     document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
     tab.classList.add("active");
     const view = tab.dataset.view;
     $("view-now").hidden = view !== "now";
     $("view-shelf").hidden = view !== "shelf";
     if (view === "shelf" && shelfDirty) loadShelf();
+    fitWindow();
   })
 );
+
+// -------------------------------------------------------- rating drawer ----
+let savedLabel = null; // label of the stored rating for the current track
+
+function updateDrawerLabel() {
+  const open = !$("rating-zone").hidden;
+  $("drawer-toggle").textContent =
+    (savedLabel ? `✎ ${savedLabel} · edit` : "✎ rate this track") +
+    (open ? " ▴" : " ▾");
+}
+
+$("drawer-toggle").addEventListener("click", () => {
+  $("rating-zone").hidden = !$("rating-zone").hidden;
+  updateDrawerLabel();
+  fitWindow();
+});
 
 // ------------------------------------------------------------ rating UI ----
 const pillsBox = $("pills");
@@ -87,6 +126,8 @@ function resetRating(saved) {
   const btn = $("save");
   btn.classList.remove("saved");
   btn.textContent = saved ? "✦ re-stamp it" : "✦ stamp it";
+  savedLabel = saved ? saved.label : null;
+  updateDrawerLabel();
   renderRating();
 }
 
@@ -123,6 +164,8 @@ $("save").addEventListener("click", async () => {
       stamp.hidden = false;
       btn.classList.add("saved");
       btn.textContent = `✦ stamped — album avg ${prettyAvg(out.albumAvg)}`;
+      savedLabel = labelOf(sel.n, sel.mod);
+      updateDrawerLabel();
     }
   } finally {
     btn.disabled = false;
@@ -162,6 +205,8 @@ async function pollNow() {
 function renderNow() {
   const card = $("now-card");
   const empty = $("now-empty");
+  $("mini-now").textContent =
+    now && now.active ? `${now.playing ? "▶" : "⏸"} ${now.title}` : "";
   if (!now || !now.active) {
     card.hidden = true;
     empty.hidden = false;
@@ -177,6 +222,7 @@ function renderNow() {
     $("t-artist").textContent = now.artist;
     $("t-album").textContent = now.album;
     resetRating(now.saved);
+    fitWindow(); // title height can change between tracks
   }
 
   const cover = $("cover");
@@ -263,6 +309,7 @@ async function loadShelf() {
     card.addEventListener("click", () => toggleTracks(card, a));
     grid.appendChild(card);
   });
+  fitWindow();
 }
 
 let openPanel = null;
@@ -271,7 +318,10 @@ function toggleTracks(card, a) {
     const wasThis = openPanel.dataset.for === `${a.artist}:::${a.album}`;
     openPanel.remove();
     openPanel = null;
-    if (wasThis) return;
+    if (wasThis) {
+      fitWindow();
+      return;
+    }
   }
   const panel = document.createElement("div");
   panel.className = "album-tracks";
@@ -316,6 +366,7 @@ function toggleTracks(card, a) {
   panel.addEventListener("click", (e) => e.stopPropagation());
   card.after(panel);
   openPanel = panel;
+  fitWindow();
 }
 
 // ------------------------------------------------------- widget window ----
@@ -324,6 +375,8 @@ window.addEventListener("pywebviewready", () => {
   document.body.classList.add("webview");
   $("win-close").addEventListener("click", () => window.pywebview.api.close());
   $("win-min").addEventListener("click", () => window.pywebview.api.minimize());
+  fitWindow();
+  setTimeout(fitWindow, 700); // refit once fonts/cover have settled
 });
 
 // ----------------------------------------------------------------- boot ----

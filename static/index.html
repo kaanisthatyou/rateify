@@ -15,13 +15,13 @@
 </div>
 
 <header>
-  <div class="pywebview-drag-region grab">
+  <div class="pywebview-drag-region grab brand">
     <h1 class="wordmark">rateify</h1>
-    <p class="tagline">judge every song. keep receipts.</p>
   </div>
+  <p id="mini-now" class="mini-now"></p>
   <nav class="tabs">
-    <button class="tab active" data-view="now">now spinning</button>
-    <button class="tab" data-view="shelf">the shelf</button>
+    <button class="tab active" data-view="now" title="tap again to tuck the widget away">now</button>
+    <button class="tab" data-view="shelf" title="tap again to tuck the widget away">shelf</button>
   </nav>
 </header>
 
@@ -67,7 +67,9 @@
 
       <div class="tear"></div>
 
-      <div class="rating-zone">
+      <button id="drawer-toggle" class="drawer-toggle">✎ rate this track ▾</button>
+
+      <div class="rating-zone" id="rating-zone" hidden>
         <p class="rating-preview"><span id="r-label">pick a number…</span><span id="r-value" class="r-value"></span></p>
 
         <div class="pills" id="pills"></div>
@@ -78,7 +80,7 @@
           <button class="mod" data-mod="strong">strong</button>
         </div>
 
-        <textarea id="note" class="note" rows="3" placeholder="scribble a note… (why this number?)"></textarea>
+        <textarea id="note" class="note" rows="2" placeholder="scribble a note… (why this number?)"></textarea>
 
         <button id="save" class="save-btn">✦ stamp it</button>
       </div>
@@ -101,8 +103,6 @@
   </section>
 
 </main>
-
-<footer>hand-built · open-ish source · yours</footer>
 
 <script src="app.js"></script>
 </body>
