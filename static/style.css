@@ -224,7 +224,7 @@ main { width: 100%; max-width: 430px; }
   width: 0%;
   background: repeating-linear-gradient(-55deg,
     var(--stamp) 0 7px, #e06a44 7px 14px);
-  transition: width .4s linear;
+  /* width is animated per-frame from JS — a CSS transition would fight it */
 }
 .playing .pfill { animation: crawl 1.2s linear infinite; }
 @keyframes crawl { to { background-position: 20px 0; } }

@@ -121,6 +121,15 @@ async def _poll_forever():
                         pass
                     if cpath.exists():
                         cover = f"/covers/{cpath.name}"
+                # SMTC tells us when the reported position was accurate; use
+                # that as the timestamp so the client can extrapolate exactly
+                pos_ts = time.time()
+                try:
+                    lu = tl.last_updated_time
+                    if lu and lu.year > 2000:
+                        pos_ts = lu.timestamp()
+                except (OSError, OverflowError, ValueError):
+                    pass
                 snap = {
                     "active": bool(title),
                     "title": title,
@@ -130,7 +139,7 @@ async def _poll_forever():
                     "position": tl.position.total_seconds() if tl.position else 0,
                     "duration": tl.end_time.total_seconds() if tl.end_time else 0,
                     "cover": cover,
-                    "ts": time.time(),
+                    "ts": pos_ts,
                 }
             with _now_lock:
                 _now.clear()
@@ -139,7 +148,7 @@ async def _poll_forever():
             with _now_lock:
                 _now.clear()
                 _now.update({"active": False, "error": str(exc)})
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(1.0)
 
 
 def _worker():

@@ -137,7 +137,14 @@ document.querySelectorAll(".ctl").forEach((b) =>
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: b.dataset.act }),
     });
-    setTimeout(pollNow, 350); // snappy UI refresh after a control tap
+    // optimistic flip so the vinyl, icon and clock react instantly
+    if (b.dataset.act === "playpause" && now && now.active) {
+      now.position = clock.pos + (clock.playing ? Date.now() / 1000 - clock.at : 0);
+      now.ts = Date.now() / 1000;
+      now.playing = !now.playing;
+      renderNow();
+    }
+    setTimeout(pollNow, 350); // then confirm against reality
   })
 );
 
@@ -212,14 +219,20 @@ function syncClock() {
   clock.duration = now.duration || 0;
 }
 
-setInterval(() => {
-  if (!now || !now.active || !clock.duration) return;
-  let pos = clock.pos + (clock.playing ? Date.now() / 1000 - clock.at : 0);
-  pos = Math.min(pos, clock.duration);
-  $("p-cur").textContent = fmt(pos);
-  $("p-dur").textContent = fmt(clock.duration);
-  $("p-fill").style.width = `${(pos / clock.duration) * 100}%`;
-}, 500);
+// drive the bar every frame so it glides instead of ticking
+function drawProgress() {
+  if (now && now.active && clock.duration) {
+    let pos = clock.pos + (clock.playing ? Date.now() / 1000 - clock.at : 0);
+    pos = Math.min(pos, clock.duration);
+    $("p-fill").style.width = `${(pos / clock.duration) * 100}%`;
+    const cur = fmt(pos);
+    if ($("p-cur").textContent !== cur) $("p-cur").textContent = cur;
+    const dur = fmt(clock.duration);
+    if ($("p-dur").textContent !== dur) $("p-dur").textContent = dur;
+  }
+  requestAnimationFrame(drawProgress);
+}
+requestAnimationFrame(drawProgress);
 
 // ---------------------------------------------------------------- shelf ----
 async function loadShelf() {
@@ -308,6 +321,6 @@ function toggleTracks(card, a) {
 // ----------------------------------------------------------------- boot ----
 renderRating();
 pollNow();
-setInterval(pollNow, 2000);
+setInterval(pollNow, 1000);
 if (location.hash === "#shelf")
   document.querySelector('.tab[data-view="shelf"]').click();
