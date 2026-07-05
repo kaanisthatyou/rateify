@@ -6,8 +6,8 @@ A tiny Windows widget that shows what Spotify is playing and lets you stamp a
 verdict on every song — typewriter, handwriting, washi tape and all.
 
 <p align="center">
-  <img src="assets/now.png" width="330" alt="now spinning view">
-  <img src="assets/shelf.png" width="330" alt="the shelf view">
+  <img src="assets/widget-now.png" width="300" alt="now spinning view with the rating drawer open">
+  <img src="assets/widget-shelf.png" width="300" alt="the shelf view">
 </p>
 
 ## Why it's neat
