@@ -385,3 +385,7 @@ pollNow();
 setInterval(pollNow, 1000);
 if (location.hash === "#shelf")
   document.querySelector('.tab[data-view="shelf"]').click();
+if (location.hash === "#rate") {
+  $("rating-zone").hidden = false;
+  updateDrawerLabel();
+}
