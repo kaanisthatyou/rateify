@@ -274,22 +274,34 @@ def api_library():
     return jsonify(albums=albums)
 
 
-def _already_running():
-    with socket.socket() as s:
-        s.settimeout(0.3)
-        return s.connect_ex(("127.0.0.1", PORT)) == 0
+def _acquire_singleton():
+    """Claim the port with our own bind, rather than testing it with a
+    connect() — a connect-based check leaves a race window during this
+    instance's own Flask startup where a second near-simultaneous launch
+    also sees the port as free, so both survive as separate windows.
+    A bind is atomic: only one process can ever hold it, immediately."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", PORT))
+    except OSError:
+        s.close()
+        return None
+    s.listen(8)
+    return s
 
 
-def _run_flask():
-    app.run(host="127.0.0.1", port=PORT, debug=False)
+def _run_flask(lock_socket):
+    from werkzeug.serving import make_server
+
+    make_server("127.0.0.1", PORT, app, fd=lock_socket.fileno()).serve_forever()
 
 
-def _run_widget():
+def _run_widget(lock_socket):
     """Frameless always-on-top widget window; the page's header is the drag
     handle and its ✕ / — buttons call back in through window.expose."""
     import webview
 
-    threading.Thread(target=_run_flask, daemon=True).start()
+    threading.Thread(target=_run_flask, args=(lock_socket,), daemon=True).start()
     window = webview.create_window(
         "rateify",
         f"http://127.0.0.1:{PORT}",
@@ -317,15 +329,16 @@ def _run_widget():
 
 
 if __name__ == "__main__":
-    if _already_running():
-        # another Rateify has the port — just bring up its page
+    lock_socket = _acquire_singleton()
+    if lock_socket is None:
+        # another Rateify already holds the port — just bring up its page
         webbrowser.open(f"http://127.0.0.1:{PORT}")
         sys.exit(0)
     threading.Thread(target=_worker, daemon=True).start()
     try:
-        _run_widget()
+        _run_widget(lock_socket)
     except Exception:
         # no WebView2 runtime? fall back to the browser like the old days
         threading.Timer(1.0, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}")).start()
         print(f"Rateify spinning at http://127.0.0.1:{PORT}")
-        _run_flask()
+        _run_flask(lock_socket)
