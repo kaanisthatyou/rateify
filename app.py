@@ -6,7 +6,6 @@ Run:  python app.py   → opens http://127.0.0.1:7700
 __version__ = "1.2.0"
 
 import asyncio
-import ctypes
 import hashlib
 import json
 import socket
@@ -297,27 +296,6 @@ def _run_flask(lock_socket):
     make_server("127.0.0.1", PORT, app, fd=lock_socket.fileno()).serve_forever()
 
 
-def _round_window_corners(window, width, height, radius=16):
-    """Clip the frameless window to a rounded rect at the OS/window-manager
-    level (SetWindowRgn). Unlike the TransparencyKey trick, this shapes both
-    painting AND hit-testing together and doesn't depend on what WebView2
-    paints into any buffer of its own, so it doesn't fight the browser's
-    independent compositor the way TransparencyKey did."""
-    try:
-        from webview.platforms.winforms import BrowserView
-
-        form = BrowserView.instances.get(window.uid)
-        if form is None:
-            return
-        hwnd = form.Handle.ToInt32()
-        region = ctypes.windll.gdi32.CreateRoundRectRgn(
-            0, 0, int(width), int(height), radius, radius
-        )
-        ctypes.windll.user32.SetWindowRgn(hwnd, region, True)
-    except Exception:
-        pass  # best-effort — window just stays square-cornered if this ever breaks
-
-
 def _run_widget(lock_socket):
     """Frameless always-on-top widget window; the page's header is the drag
     handle and its ✕ / — buttons call back in through window.expose."""
@@ -334,10 +312,7 @@ def _run_widget(lock_socket):
         resizable=True,
         background_color="#f0e9d8",
         transparent=True,  # lets the tucked-away mini bar show the desktop through it
-        min_size=(150, 40),  # default is (200, 100) — taller than our 40px mini bar,
-        # so the window used to refuse to shrink past 100px, leaving blank space below it
     )
-    window.events.shown += lambda: _round_window_corners(window, 420, 560)
 
     def close():
         window.destroy()
@@ -348,7 +323,6 @@ def _run_widget(lock_socket):
     def resize(width, height):
         # the page asks to be fitted to its content (drawer open/closed, etc.)
         window.resize(int(width), int(height))
-        _round_window_corners(window, width, height)
 
     window.expose(close, minimize, resize)
     webview.start()  # blocks until the window is closed
