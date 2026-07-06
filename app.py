@@ -296,6 +296,34 @@ def _run_flask(lock_socket):
     make_server("127.0.0.1", PORT, app, fd=lock_socket.fileno()).serve_forever()
 
 
+def _enable_true_transparency(window):
+    """pywebview's transparent=True only clears WebView2's own background —
+    it never touches the parent Form's BackColor, which stays at its WinForms
+    default (an opaque box behind the "transparent" page; confirmed by
+    inspecting webview/platforms/{winforms,edgechromium}.py). Chroma-key the
+    Form itself with the classic WinForms trick so it's actually see-through
+    to the desktop wherever the page paints nothing (alpha 0)."""
+    window.events.shown.wait()
+    try:
+        import clr
+
+        clr.AddReference("System.Windows.Forms")
+        from System import Func, Type
+        from System.Drawing import Color
+        from webview.platforms.winforms import BrowserView
+
+        form = BrowserView.instances[window.uid]
+        key = Color.FromArgb(255, 1, 2, 3)  # a color our CSS never paints
+
+        def _apply():
+            form.BackColor = key
+            form.TransparencyKey = key
+
+        form.Invoke(Func[Type](_apply))
+    except Exception:
+        pass  # best-effort — window just stays opaque if this ever breaks
+
+
 def _run_widget(lock_socket):
     """Frameless always-on-top widget window; the page's header is the drag
     handle and its ✕ / — buttons call back in through window.expose."""
@@ -313,6 +341,7 @@ def _run_widget(lock_socket):
         background_color="#f0e9d8",
         transparent=True,  # lets the tucked-away mini bar show the desktop through it
     )
+    threading.Thread(target=_enable_true_transparency, args=(window,), daemon=True).start()
 
     def close():
         window.destroy()
