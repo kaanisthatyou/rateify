@@ -152,41 +152,77 @@ body.webview { min-height: 0; } /* body must hug content so fitWindow can measur
 .mini-now {
   display: none;
   align-items: center;
-  gap: 7px;
+  gap: 10px;
   flex: 1;
   min-width: 0;
+  height: 100%;
   cursor: pointer;
-  padding: 3px 5px;
-  border-radius: 8px 10px 9px 11px / 10px 8px 11px 9px;
+  padding: 0 10px;
+  border-radius: 16px;
   transition: background .12s;
 }
 body.collapsed .mini-now { display: flex; }
-body.collapsed .mini-now:hover { background: rgba(36, 31, 23, .06); }
 body.collapsed main { display: none; }
 
 /* the mini bar is a barely-there HUD: transparent window showing through,
    header chrome fades in only on hover so it stays "almost hidden" */
-body.collapsed { background: transparent; }
+body.collapsed { background: transparent; padding: 0; }
 body.collapsed::after { display: none; }
 body.collapsed .brand,
 body.collapsed .tabs { display: none; }
 body.collapsed .win-ctls { opacity: .16; transition: opacity .15s; }
 body.collapsed:hover .win-ctls { opacity: 1; }
-body.collapsed header { padding-right: 36px; margin-bottom: 0; }
+body.collapsed header {
+  width: 100%;
+  max-width: none;
+  height: 40px;
+  padding: 0 20px 0 0;
+  margin-bottom: 0;
+}
+
+/* fruitiger-aero glass pill: frosted blur + gloss highlight over the
+   transparent window, tinted with the current theme's accent colors */
+body.collapsed .mini-now {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--teal) 30%, transparent), transparent 55%),
+    linear-gradient(-30deg, color-mix(in srgb, var(--stamp) 22%, transparent), transparent 60%),
+    rgba(255, 255, 255, .14);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, .55);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .7) inset,
+    0 8px 18px rgba(0, 0, 0, .22);
+}
+body.collapsed .mini-now::before {
+  /* glossy highlight sheen across the top third, classic aqua/glass look */
+  content: "";
+  position: absolute;
+  top: 2px; left: 6%;
+  width: 88%; height: 42%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .65), rgba(255, 255, 255, 0));
+  border-radius: 50% 50% 50% 50% / 100% 100% 0 0;
+  pointer-events: none;
+}
+body.collapsed .mini-now:hover { background: rgba(255, 255, 255, .22); }
 
 .mini-cover-sm {
   display: none;
-  width: 22px; height: 22px;
+  width: 30px; height: 30px;
   flex-shrink: 0;
-  border-radius: 5px;
+  border-radius: 7px;
   object-fit: cover;
   border: 1.5px solid var(--ink);
   box-shadow: 1px 1px 0 var(--ink);
   background: var(--line);
+  position: relative;
+  z-index: 1;
 }
 .mini-now.has-track .mini-cover-sm { display: block; }
 
-.mini-info { min-width: 0; overflow: hidden; }
+.mini-info { min-width: 0; overflow: hidden; position: relative; z-index: 1; }
 .mini-title, .mini-artist {
   display: block;
   white-space: nowrap;
@@ -196,24 +232,26 @@ body.collapsed header { padding-right: 36px; margin-bottom: 0; }
 .mini-title {
   font-family: "Caveat", cursive;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 19px;
   line-height: 1.15;
   color: var(--ink);
 }
-.mini-artist { font-size: 9px; color: var(--soft); margin-top: -1px; }
+.mini-artist { font-size: 12px; color: var(--soft); margin-top: -1px; }
 
 /* tiny animated equalizer — bounces while playing, sits low while paused */
 .mini-eq {
   display: none;
   align-items: flex-end;
-  gap: 2px;
-  height: 13px;
+  gap: 3px;
+  height: 18px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 .mini-now.has-track .mini-eq { display: flex; }
 .mini-eq i {
-  width: 3px;
-  height: 4px;
+  width: 4px;
+  height: 5px;
   background: var(--stamp);
   border-radius: 1px;
 }
@@ -222,8 +260,29 @@ body.collapsed header { padding-right: 36px; margin-bottom: 0; }
 .mini-eq i:nth-child(2) { animation-delay: .2s; }
 .mini-eq i:nth-child(3) { animation-delay: .4s; }
 @keyframes eq-bounce {
-  0%, 100% { height: 4px; }
-  50% { height: 13px; }
+  0%, 100% { height: 5px; }
+  50% { height: 18px; }
+}
+
+/* corner drag handle — the mini bar itself is click-to-expand, so dragging
+   the tucked-away widget needs its own small, separate grab area */
+.mini-drag {
+  display: none;
+  position: fixed;
+  right: 0; bottom: 0;
+  width: 20px; height: 20px;
+  cursor: grab;
+  opacity: .3;
+  transition: opacity .15s;
+}
+body.collapsed .mini-drag { display: block; }
+.mini-drag:hover { opacity: .9; }
+.mini-drag::after {
+  content: "⠿";
+  position: absolute;
+  right: 3px; bottom: -2px;
+  font-size: 13px;
+  color: var(--ink);
 }
 
 .tabs { display: flex; gap: 8px; margin-left: auto; }
