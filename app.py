@@ -299,6 +299,7 @@ def _run_widget():
         on_top=True,
         resizable=True,
         background_color="#f0e9d8",
+        transparent=True,  # lets the tucked-away mini bar show the desktop through it
     )
 
     def close():

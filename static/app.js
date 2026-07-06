@@ -195,10 +195,11 @@ let collapsed = false;
 // ask the native window to hug the content (no-op in a plain browser)
 function fitWindow() {
   if (!window.pywebview) return;
+  const w = collapsed ? 250 : 420;
   const h = collapsed
-    ? 92
+    ? 40
     : Math.min(Math.max(document.body.scrollHeight + 6, 280), 920);
-  window.pywebview.api.resize(420, h);
+  window.pywebview.api.resize(w, h);
 }
 
 function setCollapsed(c) {
@@ -206,6 +207,8 @@ function setCollapsed(c) {
   document.body.classList.toggle("collapsed", c);
   fitWindow();
 }
+
+$("mini-now").addEventListener("click", () => setCollapsed(false));
 
 document.querySelectorAll(".tab").forEach((tab) =>
   tab.addEventListener("click", () => {
@@ -374,8 +377,20 @@ async function pollNow() {
 function renderNow() {
   const card = $("now-card");
   const empty = $("now-empty");
-  $("mini-now").textContent =
-    now && now.active ? `${now.playing ? "▶" : "⏸"} ${now.title}` : "";
+  const active = !!(now && now.active);
+  const mini = $("mini-now");
+  mini.classList.toggle("has-track", active);
+  mini.classList.toggle("playing", active && now.playing);
+  if (active) {
+    $("mini-title").textContent = now.title;
+    $("mini-artist").textContent = now.artist;
+    const miniCover = $("mini-cover-sm");
+    const wantMini = now.cover || "";
+    if (miniCover.dataset.src !== wantMini) {
+      miniCover.dataset.src = wantMini;
+      miniCover.src = wantMini;
+    }
+  }
   if (!now || !now.active) {
     card.hidden = true;
     empty.hidden = false;

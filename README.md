@@ -31,6 +31,9 @@ verdict on every song — typewriter, handwriting, washi tape and all.
   from the gear icon.
 - **Color themes** — classic, noir, mint, berry, ocean — same hand-stamped
   look, different palette.
+- **A mini, almost-hidden mode** — tuck it away into a tiny transparent bar
+  with just the cover, title, artist and a little animated equalizer that
+  bounces while it's playing.
 
 ## Install
 
