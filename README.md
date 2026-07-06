@@ -27,6 +27,10 @@ verdict on every song — typewriter, handwriting, washi tape and all.
   album average (plain mean of its rated tracks).
 - **Honest storage** — one human-readable `data/ratings.json`, covers cached
   as plain images in `covers/`. Grep it, back it up, take it with you.
+- **Speaks your language** — English, Türkçe, Español, 日本語, 中文, switchable
+  from the gear icon.
+- **Color themes** — classic, noir, mint, berry, ocean — same hand-stamped
+  look, different palette.
 
 ## Install
 

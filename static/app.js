@@ -14,9 +14,177 @@ const fmt = (s) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
-const labelOf = (n, mod) => (mod === "just" ? `${n}` : `${mod} ${n}`);
+const modWord = (mod) => (mod === "light" ? t("mod_light") : t("mod_strong"));
+const labelOf = (n, mod) => (mod === "just" ? `${n}` : `${modWord(mod)} ${n}`);
 const valueOf = (n, mod) =>
   Math.round((n + (mod === "light" ? -1 / 3 : mod === "strong" ? 1 / 3 : 0)) * 100) / 100;
+
+// ------------------------------------------------------------------ i18n ----
+const I18N = {
+  en: {
+    tab_now: "now", tab_shelf: "shelf", tab_settings: "settings",
+    tab_hint: "tap again to tuck the widget away",
+    min_title: "minimize", close_title: "close",
+    prev_title: "previous", playpause_title: "play / pause", next_title: "next",
+    empty_now_big: "nothing spinning",
+    empty_now_small: "put a record on in spotify & it shows up here ♪",
+    rate_track: "rate this track", edit_suffix: " · edit",
+    pick_number: "pick a number…",
+    mod_light: "light", mod_just: "just", mod_strong: "strong",
+    note_placeholder: "scribble a note… (why this number?)",
+    stamp_it: "✦ stamp it", restamp_it: "✦ re-stamp it",
+    stamped_avg: "✦ stamped — album avg {avg}",
+    stamp_rated: "RATED",
+    shelf_empty_big: "bare shelves",
+    shelf_empty_small: "no verdicts yet — go judge something",
+    single_album: "(single)",
+    tracks_rated: "{count} track(s) rated",
+    album_avg_line: "{artist} — album avg {avg}",
+    remove_rating: "remove rating",
+    settings_lang_label: "language",
+    settings_theme_label: "color theme",
+  },
+  tr: {
+    tab_now: "şimdi", tab_shelf: "raf", tab_settings: "ayarlar",
+    tab_hint: "widget'ı gizlemek için tekrar dokun",
+    min_title: "küçült", close_title: "kapat",
+    prev_title: "önceki", playpause_title: "oynat / duraklat", next_title: "sonraki",
+    empty_now_big: "hiçbir şey çalmıyor",
+    empty_now_small: "spotify'da bir şey çal, burada görünsün ♪",
+    rate_track: "bu parçayı puanla", edit_suffix: " · düzenle",
+    pick_number: "bir sayı seç…",
+    mod_light: "hafif", mod_just: "tam", mod_strong: "güçlü",
+    note_placeholder: "bir not karala… (neden bu sayı?)",
+    stamp_it: "✦ damgala", restamp_it: "✦ yeniden damgala",
+    stamped_avg: "✦ damgalandı — albüm ort. {avg}",
+    stamp_rated: "PUANLANDI",
+    shelf_empty_big: "raflar boş",
+    shelf_empty_small: "henüz hüküm yok — git bir şeyi yargıla",
+    single_album: "(tekli)",
+    tracks_rated: "{count} parça puanlandı",
+    album_avg_line: "{artist} — albüm ort. {avg}",
+    remove_rating: "puanı kaldır",
+    settings_lang_label: "dil",
+    settings_theme_label: "renk teması",
+  },
+  es: {
+    tab_now: "ahora", tab_shelf: "estante", tab_settings: "ajustes",
+    tab_hint: "toca de nuevo para ocultar el widget",
+    min_title: "minimizar", close_title: "cerrar",
+    prev_title: "anterior", playpause_title: "reproducir / pausar", next_title: "siguiente",
+    empty_now_big: "nada sonando",
+    empty_now_small: "pon algo en spotify y aparecerá aquí ♪",
+    rate_track: "califica esta canción", edit_suffix: " · editar",
+    pick_number: "elige un número…",
+    mod_light: "suave", mod_just: "justo", mod_strong: "fuerte",
+    note_placeholder: "escribe una nota… (¿por qué este número?)",
+    stamp_it: "✦ sellarlo", restamp_it: "✦ volver a sellarlo",
+    stamped_avg: "✦ sellado — promedio del álbum {avg}",
+    stamp_rated: "SELLADO",
+    shelf_empty_big: "estantes vacíos",
+    shelf_empty_small: "aún sin veredictos — ve a juzgar algo",
+    single_album: "(sencillo)",
+    tracks_rated: "{count} canción(es) calificada(s)",
+    album_avg_line: "{artist} — promedio del álbum {avg}",
+    remove_rating: "eliminar calificación",
+    settings_lang_label: "idioma",
+    settings_theme_label: "tema de color",
+  },
+  ja: {
+    tab_now: "再生中", tab_shelf: "棚", tab_settings: "設定",
+    tab_hint: "もう一度タップしてウィジェットを隠す",
+    min_title: "最小化", close_title: "閉じる",
+    prev_title: "前へ", playpause_title: "再生 / 一時停止", next_title: "次へ",
+    empty_now_big: "何も再生されていません",
+    empty_now_small: "Spotifyで何か再生すると、ここに表示されます ♪",
+    rate_track: "この曲を評価する", edit_suffix: "・編集",
+    pick_number: "数字を選んでください…",
+    mod_light: "弱め", mod_just: "ちょうど", mod_strong: "強め",
+    note_placeholder: "メモを書く…（なぜこの数字？）",
+    stamp_it: "✦ 評価する", restamp_it: "✦ 再評価する",
+    stamped_avg: "✦ 評価完了 — アルバム平均 {avg}",
+    stamp_rated: "評価済み",
+    shelf_empty_big: "棚は空です",
+    shelf_empty_small: "まだ評価がありません — 何か評価しに行こう",
+    single_album: "（シングル）",
+    tracks_rated: "{count}曲評価済み",
+    album_avg_line: "{artist} — アルバム平均 {avg}",
+    remove_rating: "評価を削除",
+    settings_lang_label: "言語",
+    settings_theme_label: "カラーテーマ",
+  },
+  zh: {
+    tab_now: "正在播放", tab_shelf: "唱片架", tab_settings: "设置",
+    tab_hint: "再次点击以收起小组件",
+    min_title: "最小化", close_title: "关闭",
+    prev_title: "上一首", playpause_title: "播放 / 暂停", next_title: "下一首",
+    empty_now_big: "没有正在播放的内容",
+    empty_now_small: "在spotify播放点什么，就会显示在这里 ♪",
+    rate_track: "为这首歌评分", edit_suffix: " · 编辑",
+    pick_number: "选择一个数字…",
+    mod_light: "偏轻", mod_just: "刚好", mod_strong: "偏强",
+    note_placeholder: "写点笔记…（为什么打这个分？）",
+    stamp_it: "✦ 盖章", restamp_it: "✦ 重新盖章",
+    stamped_avg: "✦ 已盖章 — 专辑均分 {avg}",
+    stamp_rated: "已评分",
+    shelf_empty_big: "空空如也",
+    shelf_empty_small: "还没有评价 — 去评一评吧",
+    single_album: "（单曲）",
+    tracks_rated: "已评{count}首",
+    album_avg_line: "{artist} — 专辑均分 {avg}",
+    remove_rating: "删除评分",
+    settings_lang_label: "语言",
+    settings_theme_label: "配色主题",
+  },
+};
+
+let lang = localStorage.getItem("rateify_lang") || "en";
+
+function t(key, params) {
+  let s = (I18N[lang] && I18N[lang][key]) ?? I18N.en[key] ?? key;
+  if (params) for (const k in params) s = s.replace(`{${k}}`, params[k]);
+  return s;
+}
+
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => (el.textContent = t(el.dataset.i18n)));
+  document.querySelectorAll("[data-i18n-title]").forEach((el) => (el.title = t(el.dataset.i18nTitle)));
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => (el.placeholder = t(el.dataset.i18nPlaceholder)));
+  document.querySelectorAll(".lang-pill").forEach((p) => p.classList.toggle("on", p.dataset.lang === lang));
+}
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem("rateify_lang", l);
+  applyI18n();
+  renderRating();
+  resetRating(now && now.saved);
+  openPanel = null;
+  if (!shelfDirty) loadShelf();
+}
+
+document.querySelectorAll(".lang-pill").forEach((p) =>
+  p.addEventListener("click", () => setLang(p.dataset.lang))
+);
+
+// ---------------------------------------------------------------- theme ----
+const THEMES = ["classic", "noir", "mint", "berry", "ocean"];
+let theme = localStorage.getItem("rateify_theme") || "classic";
+
+function setTheme(name) {
+  theme = name;
+  localStorage.setItem("rateify_theme", name);
+  document.body.classList.remove(...THEMES.map((n) => `theme-${n}`));
+  document.body.classList.add(`theme-${name}`);
+  document.querySelectorAll(".swatch").forEach((s) => s.classList.toggle("on", s.dataset.theme === name));
+}
+
+document.querySelectorAll(".swatch").forEach((s) =>
+  s.addEventListener("click", () => setTheme(s.dataset.theme))
+);
+
+setTheme(theme);
+applyI18n();
 
 // label for an already-stored numeric value (used on the shelf)
 const prettyAvg = (v) => (v == null ? "–" : (Math.round(v * 10) / 10).toFixed(1));
@@ -51,6 +219,7 @@ document.querySelectorAll(".tab").forEach((tab) =>
     const view = tab.dataset.view;
     $("view-now").hidden = view !== "now";
     $("view-shelf").hidden = view !== "shelf";
+    $("view-settings").hidden = view !== "settings";
     if (view === "shelf" && shelfDirty) loadShelf();
     fitWindow();
   })
@@ -62,7 +231,7 @@ let savedLabel = null; // label of the stored rating for the current track
 function updateDrawerLabel() {
   const open = !$("rating-zone").hidden;
   $("drawer-toggle").textContent =
-    (savedLabel ? `✎ ${savedLabel} · edit` : "✎ rate this track") +
+    (savedLabel ? `✎ ${savedLabel}${t("edit_suffix")}` : `✎ ${t("rate_track")}`) +
     (open ? " ▴" : " ▾");
 }
 
@@ -101,7 +270,7 @@ function renderRating() {
     m.disabled = m.dataset.mod === "strong" && sel.n === 10;
   });
   if (sel.n == null) {
-    $("r-label").textContent = "pick a number…";
+    $("r-label").textContent = t("pick_number");
     $("r-value").textContent = "";
   } else {
     $("r-label").textContent = labelOf(sel.n, sel.mod);
@@ -125,7 +294,7 @@ function resetRating(saved) {
   }
   const btn = $("save");
   btn.classList.remove("saved");
-  btn.textContent = saved ? "✦ re-stamp it" : "✦ stamp it";
+  btn.textContent = saved ? t("restamp_it") : t("stamp_it");
   savedLabel = saved ? saved.label : null;
   updateDrawerLabel();
   renderRating();
@@ -163,7 +332,7 @@ $("save").addEventListener("click", async () => {
       void stamp.offsetWidth; // replay slam animation
       stamp.hidden = false;
       btn.classList.add("saved");
-      btn.textContent = `✦ stamped — album avg ${prettyAvg(out.albumAvg)}`;
+      btn.textContent = t("stamped_avg", { avg: prettyAvg(out.albumAvg) });
       savedLabel = labelOf(sel.n, sel.mod);
       updateDrawerLabel();
     }
@@ -303,9 +472,10 @@ async function loadShelf() {
       </div>
       <p class="album-name"></p>
       <p class="album-artist"></p>
-      <p class="album-count">${a.count} track${a.count > 1 ? "s" : ""} rated</p>`;
-    card.querySelector(".album-name").textContent = a.album || "(single)";
+      <p class="album-count"></p>`;
+    card.querySelector(".album-name").textContent = a.album || t("single_album");
     card.querySelector(".album-artist").textContent = a.artist;
+    card.querySelector(".album-count").textContent = t("tracks_rated", { count: a.count });
     card.addEventListener("click", () => toggleTracks(card, a));
     grid.appendChild(card);
   });
@@ -327,39 +497,40 @@ function toggleTracks(card, a) {
   panel.className = "album-tracks";
   panel.dataset.for = `${a.artist}:::${a.album}`;
   panel.innerHTML = `<h3></h3><p class="sub"></p>`;
-  panel.querySelector("h3").textContent = a.album || "(single)";
-  panel.querySelector(".sub").textContent = `${a.artist} — album avg ${prettyAvg(a.avg)}`;
+  panel.querySelector("h3").textContent = a.album || t("single_album");
+  panel.querySelector(".sub").textContent = t("album_avg_line", { artist: a.artist, avg: prettyAvg(a.avg) });
 
-  a.tracks.forEach((t) => {
+  a.tracks.forEach((trk) => {
     const row = document.createElement("div");
     row.className = "trk";
     row.innerHTML = `
       <span class="trk-title"></span>
       <span class="trk-label"></span>
-      <button class="trk-del" title="remove rating">✕</button>`;
-    row.querySelector(".trk-title").textContent = t.title;
-    row.querySelector(".trk-label").textContent = t.label;
+      <button class="trk-del">✕</button>`;
+    row.querySelector(".trk-title").textContent = trk.title;
+    row.querySelector(".trk-label").textContent = trk.label;
+    row.querySelector(".trk-del").title = t("remove_rating");
     row.querySelector(".trk-del").addEventListener("click", async (e) => {
       e.stopPropagation();
       await fetch("/api/rate", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ artist: a.artist, album: a.album, title: t.title }),
+        body: JSON.stringify({ artist: a.artist, album: a.album, title: trk.title }),
       });
       shelfDirty = true;
       trackKey = ""; // force the now-view to reload saved state
       loadShelf();
     });
     panel.appendChild(row);
-    if (t.note) {
+    if (trk.note) {
       const note = document.createElement("p");
       note.className = "trk-note";
-      note.textContent = `“${t.note}”`;
+      note.textContent = `“${trk.note}”`;
       panel.appendChild(note);
     }
     const date = document.createElement("p");
     date.className = "trk-date";
-    date.textContent = t.date.slice(0, 10);
+    date.textContent = trk.date.slice(0, 10);
     panel.appendChild(date);
   });
 
@@ -385,6 +556,8 @@ pollNow();
 setInterval(pollNow, 1000);
 if (location.hash === "#shelf")
   document.querySelector('.tab[data-view="shelf"]').click();
+if (location.hash === "#settings")
+  document.querySelector('.tab[data-view="settings"]').click();
 if (location.hash === "#rate") {
   $("rating-zone").hidden = false;
   updateDrawerLabel();

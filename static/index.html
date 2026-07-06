@@ -10,8 +10,8 @@
 <body>
 
 <div class="win-ctls">
-  <button id="win-min" title="minimize" aria-label="minimize">–</button>
-  <button id="win-close" title="close" aria-label="close">✕</button>
+  <button id="win-min" data-i18n-title="min_title" title="minimize" aria-label="minimize">–</button>
+  <button id="win-close" data-i18n-title="close_title" title="close" aria-label="close">✕</button>
 </div>
 
 <header>
@@ -20,8 +20,9 @@
   </div>
   <p id="mini-now" class="mini-now"></p>
   <nav class="tabs">
-    <button class="tab active" data-view="now" title="tap again to tuck the widget away">now</button>
-    <button class="tab" data-view="shelf" title="tap again to tuck the widget away">shelf</button>
+    <button class="tab active" data-view="now" data-i18n="tab_now" data-i18n-title="tab_hint" title="tap again to tuck the widget away">now</button>
+    <button class="tab" data-view="shelf" data-i18n="tab_shelf" data-i18n-title="tab_hint" title="tap again to tuck the widget away">shelf</button>
+    <button class="tab tab-gear" data-view="settings" data-i18n-title="tab_hint" title="tap again to tuck the widget away" aria-label="settings">⚙</button>
   </nav>
 </header>
 
@@ -36,7 +37,7 @@
         <div class="cover-frame">
           <span class="tape tape-tl"></span>
           <img id="cover" class="cover" alt="album cover">
-          <div class="stamp" id="stamp" hidden>RATED</div>
+          <div class="stamp" id="stamp" data-i18n="stamp_rated" hidden>RATED</div>
         </div>
       </div>
 
@@ -53,14 +54,14 @@
       </div>
 
       <div class="controls">
-        <button class="ctl" data-act="prev" title="previous" aria-label="previous">
+        <button class="ctl" data-act="prev" data-i18n-title="prev_title" title="previous" aria-label="previous">
           <svg viewBox="0 0 24 24"><path d="M6 5h3v14H6zM20 5v14L9.5 12z"/></svg>
         </button>
-        <button class="ctl ctl-big" data-act="playpause" title="play / pause" aria-label="play/pause">
+        <button class="ctl ctl-big" data-act="playpause" data-i18n-title="playpause_title" title="play / pause" aria-label="play/pause">
           <svg id="icon-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>
           <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
         </button>
-        <button class="ctl" data-act="next" title="next" aria-label="next">
+        <button class="ctl" data-act="next" data-i18n-title="next_title" title="next" aria-label="next">
           <svg viewBox="0 0 24 24"><path d="M15 5h3v14h-3zM4 5v14l10.5-7z"/></svg>
         </button>
       </div>
@@ -75,20 +76,20 @@
         <div class="pills" id="pills"></div>
 
         <div class="mods" id="mods">
-          <button class="mod" data-mod="light">light</button>
-          <button class="mod active" data-mod="just">just</button>
-          <button class="mod" data-mod="strong">strong</button>
+          <button class="mod" data-mod="light" data-i18n="mod_light">light</button>
+          <button class="mod active" data-mod="just" data-i18n="mod_just">just</button>
+          <button class="mod" data-mod="strong" data-i18n="mod_strong">strong</button>
         </div>
 
-        <textarea id="note" class="note" rows="2" placeholder="scribble a note… (why this number?)"></textarea>
+        <textarea id="note" class="note" rows="2" data-i18n-placeholder="note_placeholder" placeholder="scribble a note… (why this number?)"></textarea>
 
         <button id="save" class="save-btn">✦ stamp it</button>
       </div>
     </div>
 
     <div class="card empty-card" id="now-empty">
-      <p class="empty-big">nothing spinning</p>
-      <p class="empty-small">put a record on in spotify &amp; it shows up here ♪</p>
+      <p class="empty-big" data-i18n="empty_now_big">nothing spinning</p>
+      <p class="empty-small" data-i18n="empty_now_small">put a record on in spotify &amp; it shows up here ♪</p>
     </div>
 
   </section>
@@ -97,8 +98,33 @@
   <section id="view-shelf" hidden>
     <div id="shelf-grid" class="shelf-grid"></div>
     <div class="card empty-card" id="shelf-empty" hidden>
-      <p class="empty-big">bare shelves</p>
-      <p class="empty-small">no verdicts yet — go judge something</p>
+      <p class="empty-big" data-i18n="shelf_empty_big">bare shelves</p>
+      <p class="empty-small" data-i18n="shelf_empty_small">no verdicts yet — go judge something</p>
+    </div>
+  </section>
+
+  <!-- ================ SETTINGS ================ -->
+  <section id="view-settings" hidden>
+    <div class="card settings-card">
+      <p class="settings-label" data-i18n="settings_lang_label">language</p>
+      <div class="pills lang-pills" id="lang-pills">
+        <button class="pill lang-pill" data-lang="en">EN</button>
+        <button class="pill lang-pill" data-lang="tr">TR</button>
+        <button class="pill lang-pill" data-lang="es">ES</button>
+        <button class="pill lang-pill" data-lang="ja">JA</button>
+        <button class="pill lang-pill" data-lang="zh">中</button>
+      </div>
+
+      <div class="tear"></div>
+
+      <p class="settings-label" data-i18n="settings_theme_label">color theme</p>
+      <div class="theme-swatches" id="theme-swatches">
+        <button class="swatch" data-theme="classic" title="classic"></button>
+        <button class="swatch" data-theme="noir" title="noir"></button>
+        <button class="swatch" data-theme="mint" title="mint"></button>
+        <button class="swatch" data-theme="berry" title="berry"></button>
+        <button class="swatch" data-theme="ocean" title="ocean"></button>
+      </div>
     </div>
   </section>
 
